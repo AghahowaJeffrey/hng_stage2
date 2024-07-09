@@ -1,4 +1,8 @@
-#!/usr/bin/env bash
+#!/bin/bash
+
+echo "Create a virtual environment"
+python -m venv venv
+source venv/bin/activate
 
 echo "Building project packages..."
 python3 -m pip install -r requirements.txt
