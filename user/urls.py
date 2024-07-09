@@ -21,4 +21,8 @@ from .views import *
 urlpatterns = [
     path('auth/register', register_user, name='register_user'),
     path('auth/login', login_user, name='login_user'),
+    path('api/users/<str:id>', get_user_detail, name='get_user_detail'),
+    path('api/organisations', get_user_organisations, name='user-organisations'),
+    path('api/organisations/<str:orgId>', get_single_organisation, name='single-organisation'),
+    path('api/organisations/<str:orgId>/users', add_user_to_organisation, name='add-user-to-org'),
 ]

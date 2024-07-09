@@ -30,7 +30,7 @@ AUTH_USER_MODEL = 'user.User'
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG")
 
 ALLOWED_HOSTS = []
 
@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'user'
+    'user',
+    'core',
 ]
 
 MIDDLEWARE = [
@@ -74,6 +75,20 @@ TEMPLATES = [
         },
     },
 ]
+
+REST_FRAMEWORK = {
+
+        'DEFAULT_AUTHENTICATION_CLASSES': [
+                'core.custom_authentication.CustomUserJWTAuthentication',
+        ],
+
+        'DEFAULT_PARSER_CLASSES': ['rest_framework.parsers.JSONParser'],
+
+        # 'DEFAULT_PERMISSION_CLASSES': [
+        #     'rest_framework.permissions.IsAuthenticated',
+        #     # 'rest_framework.permissions.IsAdminUser',
+        # ]
+}
 
 WSGI_APPLICATION = 'hng_stage2.wsgi.application'
 
