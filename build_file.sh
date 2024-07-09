@@ -1,8 +1,8 @@
 #!/bin/bash
 
 echo "Create a virtual environment"
-python -m venv venv
-source venv/bin/activate
+python3 -m venv venv
+source venv/Script/activate
 
 echo "Building project packages..."
 python3 -m pip install -r requirements.txt
