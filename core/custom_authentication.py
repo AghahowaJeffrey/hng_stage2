@@ -50,6 +50,13 @@ class CustomUserJWTAuthentication(authentication.BaseAuthentication):
             print("I got here+++++++++++++++++++++++++++++")
             return None
 
+        if len(auth_header) == 0:
+            return Response({
+            "status": "Bad request",
+            "message": "Authentication failed",
+            "statusCode": 401
+        }, status=status.HTTP_401_UNAUTHORIZED)
+
         if len(auth_header) == 1:
             # Invalid token header. No credentials provided. Do not attempt to
             # authenticate.
