@@ -13,7 +13,6 @@ from .serializers import *
 
 @csrf_exempt
 @api_view(['POST'])
-@permission_classes([AllowAny])
 def register_user(request):
     """
     Register a user
@@ -54,7 +53,6 @@ def register_user(request):
 
 
 @api_view(['POST'])
-@permission_classes([AllowAny])
 def login_user(request):
     """
     Log a user in using the email and password as the authentication credentials
