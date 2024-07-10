@@ -13,6 +13,15 @@ from rest_framework.response import Response
 from user.models import User
 
 
+class NoTokenError(exceptions.APIException):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    default_detail = {
+        "status": "Bad request",
+        "message": "Authentication failed",
+        "statusCode": 401
+    }
+    default_code = 'no_token'
+
 class CustomUserJWTAuthentication(authentication.BaseAuthentication):
     authentication_header_prefix = 'Bearer'
 
@@ -48,21 +57,21 @@ class CustomUserJWTAuthentication(authentication.BaseAuthentication):
 
         if not auth_header:
             print("I got here+++++++++++++++++++++++++++++")
-            return self.no_token_response()
+           raise NoTokenError()
 
         if len(auth_header) == 0:
-            return self.no_token_response()
+            raise NoTokenError()
 
         if len(auth_header) == 1:
             # Invalid token header. No credentials provided. Do not attempt to
             # authenticate.
-            return self.no_token_response()
+            raise NoTokenError()
 
         elif len(auth_header) > 2:
             # The structure should be [ "Token", "<auth_string>"]
             # Invalid token header. The Token string should not contain spaces. Do
             # not attempt to authenticate.
-            return self.no_token_response()
+            raise NoTokenError()
 
         # This JWT library  can't handle the `byte` type, which is
         # commonly used by standard libraries in Python 3. To get around this,
@@ -76,19 +85,13 @@ class CustomUserJWTAuthentication(authentication.BaseAuthentication):
         if prefix.lower() != auth_header_prefix:
             # The auth header prefix is not what we expected. Do not attempt to
             # authenticate.
-            return self.no_token_response()
+           raise NoTokenError()
 
         # By now, we are sure there is a *chance* that authentication will
         # succeed. We delegate the actual credentials authentication to the
         # method below.
         return self._authenticate_credentials(request, token)
-        
-    def no_token_response(self):
-        return Response({
-            "status": "Bad request",
-            "message": "Authentication failed",
-            "statusCode": 401
-        }, status=status.HTTP_401_UNAUTHORIZED)
+
 
     def _authenticate_credentials(self, request, token):
         """
@@ -98,13 +101,13 @@ class CustomUserJWTAuthentication(authentication.BaseAuthentication):
         try:
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms='HS256')  # TODO: PUSH THIS CHANGE
         except:
-            return self.no_token_response()
+            raise NoTokenError()
         try:
             user = User.objects.get(pk=payload['id'])
         except User.DoesNotExist:
-            return self.no_token_response()
+            raise NoTokenError()
         if not user.is_active:
             msg = 'This user has been deactivated.'
-            return self.no_token_response()
+            raise NoTokenError()
 
         return user, token
