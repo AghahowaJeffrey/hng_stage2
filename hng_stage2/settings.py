@@ -78,7 +78,7 @@ TEMPLATES = [
 
 REST_FRAMEWORK = {
 
-        'EXCEPTION_HANDLER': 'core.exceptions.custom_exception_handler',
+        'EXCEPTION_HANDLER': 'core.exception_handler.custom_exception_handler',
 
         'DEFAULT_AUTHENTICATION_CLASSES': [
                 'core.custom_authentication.CustomUserJWTAuthentication',
