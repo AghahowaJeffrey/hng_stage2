@@ -5,10 +5,14 @@
         "use": "@vercel/python",
         "config": {
           "maxLambdaSize": "15mb",
-          "runtime": "Python3.12",
-          "buildCommand": "chmod +x build_file.sh && ./build_file.sh"
+          "runtime": "Python3.12"
         }
-      }],
+      },
+      {
+        "src": "build_file.sh",
+        "use": "@vercel/static-build"
+      }
+    ],
     "routes": [
       {
         "src": "/(.*)",
