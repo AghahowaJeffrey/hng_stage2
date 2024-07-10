@@ -9,6 +9,7 @@ from django.conf import settings
 
 from rest_framework import authentication, exceptions, status
 from rest_framework.response import Response
+from jwt.exceptions import ExpiredSignatureError, DecodeError
 
 from user.models import User
 
@@ -57,7 +58,7 @@ class CustomUserJWTAuthentication(authentication.BaseAuthentication):
 
         if not auth_header:
             print("I got here+++++++++++++++++++++++++++++")
-           raise NoTokenError()
+            raise NoTokenError()
 
         if len(auth_header) == 0:
             raise NoTokenError()
@@ -85,7 +86,7 @@ class CustomUserJWTAuthentication(authentication.BaseAuthentication):
         if prefix.lower() != auth_header_prefix:
             # The auth header prefix is not what we expected. Do not attempt to
             # authenticate.
-           raise NoTokenError()
+            raise NoTokenError()
 
         # By now, we are sure there is a *chance* that authentication will
         # succeed. We delegate the actual credentials authentication to the
@@ -100,6 +101,10 @@ class CustomUserJWTAuthentication(authentication.BaseAuthentication):
         """
         try:
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms='HS256')  # TODO: PUSH THIS CHANGE
+        except ExpiredSignatureError:
+            raise NoTokenError()
+        except DecodeError:
+            raise NoTokenError()
         except:
             raise NoTokenError()
         try:
