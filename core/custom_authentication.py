@@ -20,71 +20,21 @@ class CustomUserJWTAuthentication(authentication.BaseAuthentication):
     authentication_header_prefix = 'Bearer'
 
     def authenticate(self, request):
-        """
-        The `authenticate` method is called on every request regardless of
-        whether the endpoint requires authentication.
-
-        `authenticate` has two possible return values:
-
-        1) `None` - We return `None` if we do not wish to authenticate. Usually
-                    this means we know authentication will fail. An example of
-                    this is when the request does not include a token in the
-                    headers.
-
-        2) `(user, token)` - We return a user/token combination when
-                             authentication is successful.
-
-                            If neither case is met, that means there's an error
-                            and we do not return anything.
-                            We simple raise the `AuthenticationFailed`
-                            exception and let Django REST Framework
-                            handle the rest.
-        """
-
         request.user = None
 
-        # `auth_header` should be an array with two elements: 1) the name of
-        # the authentication header (in this case, "Token") and 2) the JWT
-        # that I should authenticate against.
         auth_header = authentication.get_authorization_header(request).split()
         auth_header_prefix = self.authentication_header_prefix.lower()
 
-        if not auth_header:
-            print("I got here+++++++++++++++++++++++++++++")
-            return None
-
-        if len(auth_header) == 0:
-            return None
-
-        if len(auth_header) == 1:
-            # Invalid token header. No credentials provided. Do not attempt to
-            # authenticate.
-            return None
-
-        elif len(auth_header) > 2:
-            # The structure should be [ "Token", "<auth_string>"]
-            # Invalid token header. The Token string should not contain spaces. Do
-            # not attempt to authenticate.
-            return None
-
-        # This JWT library  can't handle the `byte` type, which is
-        # commonly used by standard libraries in Python 3. To get around this,
-        # I simply have to decode `prefix` and `token`. This does not make for
-        # clean code, but it is a good decision because I would get an error
-        # if I didn't decode these values.
+        if not auth_header or len(auth_header) != 2:
+            raise NoTokenError()
 
         prefix = auth_header[0].decode('utf-8')
         token = auth_header[1].decode('utf-8')
 
         if prefix.lower() != auth_header_prefix:
-            # The auth header prefix is not what we expected. Do not attempt to
-            # authenticate.
-            return None
+            raise NoTokenError()
 
-        # By now, we are sure there is a *chance* that authentication will
-        # succeed. We delegate the actual credentials authentication to the
-        # method below.
-        return self._authenticate_credentials(request, token)
+        return self._authenticate_credentials(request, token
 
 
     def _authenticate_credentials(self, request, token):
