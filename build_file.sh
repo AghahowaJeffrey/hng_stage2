@@ -1,5 +1,4 @@
 #!/bin/bash
-
 echo "Installing pipenv"
 python3 -m pip install pipenv
 
@@ -10,7 +9,11 @@ echo "Migrating Database..."
 python3 manage.py makemigrations --noinput
 python3 manage.py migrate --noinput
 
-echo "Create a dummy output directory"
+echo "Creating dist folder..."
 mkdir -p dist
+
+echo "Copying necessary files to dist..."
+cp -r hng_stage2 dist/
+cp manage.py dist/
 
 echo "Setup complete"
