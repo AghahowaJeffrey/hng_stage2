@@ -15,6 +15,10 @@ from jwt.exceptions import ExpiredSignatureError, DecodeError
 from user.models import User
 
 
+class NoAuthenticationRequired(authentication.BaseAuthentication):
+    def authenticate(self, request):
+        return None
+
 
 class CustomUserJWTAuthentication(authentication.BaseAuthentication):
     authentication_header_prefix = 'Bearer'
