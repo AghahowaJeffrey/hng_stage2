@@ -29,8 +29,8 @@ class CustomUserJWTAuthentication(authentication.BaseAuthentication):
         auth_header = authentication.get_authorization_header(request).split()
         auth_header_prefix = self.authentication_header_prefix.lower()
 
-        if not auth_header or len(auth_header) != 2:
-            raise NoTokenError()
+        if request.path in ['/api/register/', '/api/login/']:  # Add your paths here
+            return None
 
         prefix = auth_header[0].decode('utf-8')
         token = auth_header[1].decode('utf-8')
