@@ -9,3 +9,8 @@ python3 -m pipenv install --system --deploy --ignore-pipfile
 echo "Migrating Database..."
 python3 manage.py makemigrations --noinput
 python3 manage.py migrate --noinput
+
+echo "Create a dummy output directory"
+mkdir -p dist
+
+echo "Setup complete"
