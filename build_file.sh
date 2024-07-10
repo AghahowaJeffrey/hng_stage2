@@ -13,7 +13,6 @@ echo "Creating dist folder..."
 mkdir -p dist
 
 echo "Copying necessary files to dist..."
-cp -r hng_stage2 dist/
-cp manage.py dist/
+cp -r hng_stage2/wsgi.py dist/
 
 echo "Setup complete"
