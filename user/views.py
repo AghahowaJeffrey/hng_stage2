@@ -9,14 +9,12 @@ from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError as DRFValidationError
 
 from .serializers import *
-from core.custom_authentication import NoAuthenticationRequired
+from core.exceptions import IsAuthenticatedCustom
 
 
 
 
 @csrf_exempt
-@authentication_classes([NoAuthenticationRequired])
-@permission_classes([AllowAny])
 @api_view(['POST'])
 def register_user(request):
     """
@@ -58,8 +56,6 @@ def register_user(request):
 
 
 @api_view(['POST'])
-@authentication_classes([NoAuthenticationRequired])
-@permission_classes([AllowAny])
 def login_user(request):
     """
     Log a user in using the email and password as the authentication credentials
@@ -85,7 +81,7 @@ def login_user(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticatedCustom])
 def get_user_detail(request, id):
     """
     Get a user's own record or user record in organisations they belong to or created
@@ -122,7 +118,7 @@ def get_user_detail(request, id):
 
 
 @api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticatedCustom])
 def get_user_organisations(request):
     """
     Get all organisations the authenticated user belongs to or created.
@@ -187,7 +183,7 @@ def get_user_organisations(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticatedCustom])
 def get_single_organisation(request, orgId):
     """
     Get a single organisation record for the authenticated user.
