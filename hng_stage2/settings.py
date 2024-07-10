@@ -32,7 +32,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG")
 
-ALLOWED_HOSTS = ['5362-105-112-214-171.ngrok-free.app']
+ALLOWED_HOSTS = ['857e-105-112-218-202.ngrok-free.app', 'hng-stage2-brown.vercel.app']
 
 
 # Application definition

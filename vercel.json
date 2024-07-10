@@ -20,6 +20,6 @@
         "dest": "hng_stage2/wsgi.py"
       }
     ],
-    "outputDirectory": "dist"
+    "outputDirectory": "hng_stage2/wsgi.py"
 }
 
