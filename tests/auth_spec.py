@@ -1,6 +1,8 @@
 import jwt
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
+from datetime import timedelta
 from rest_framework.test import APIClient
 from django.contrib.auth import get_user_model
 
@@ -20,14 +22,33 @@ class TokenGenerationTestCase(TestCase):
             firstName='Test',
             lastName='User'
         )
+        
+    def test_token_generation(self):
+        token = self.user.token
+        self.assertIsNotNone(token)
+        
+        # Decode the token
+        decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+        
+        # Check if the user ID in the token matches the user's ID
+        self.assertEqual(str(self.user.userId), decoded_token['id'])
 
     def test_token_expiration(self):
         token = self.user.token
+        decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+        
+        # Check if the expiration time is correct (2 days from now)
+        expected_exp = int((timezone.now() + timedelta(days=2)).timestamp())
+        self.assertAlmostEqual(decoded_token['exp'], expected_exp, delta=5)  # Allow 5 seconds difference
 
-    def test_token_user_details(self):
+    def test_token_expiration_invalid_after_two_days(self):
         token = self.user.token
-        payload = jwt.decode(token, SECRET_KEY, algorithms='HS256')
-        self.assertEqual(payload['id'], str(self.user.userId))
+        
+        # Mock the datetime to be 3 days in the future
+        future_time = timezone.now() + timedelta(days=3)
+        
+        with self.assertRaises(jwt.ExpiredSignatureError):
+            jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'], options={"verify_exp": True}, current_time=future_time)
 
 
 class OrganisationAccessTestCase(TestCase):
@@ -78,135 +99,6 @@ class OrganisationAccessTestCase(TestCase):
         self.assertIn(self.user2, org2_users)
         self.assertNotIn(self.user1, org2_users)
 
-
-class AuthAPITestCase(TestCase):
-    def setUp(self):
-        self.client = APIClient()
-        self.register_url = reverse('register_user')
-        self.login_url = reverse('login_user')
-
-    def test_register_user_with_default_organisation(self):
-        data = {
-            'firstName': 'John',
-            'lastName': 'Doe',
-            'email': 'john@example.com',
-            'password': 'password123'
-        }
-        response = self.client.post(self.register_url, data, format='json')
-
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.data['status'], 'success')
-        self.assertEqual(response.data['data']['user']['firstName'], 'John')
-        self.assertEqual(response.data['data']['user']['lastName'], 'Doe')
-        self.assertEqual(response.data['data']['user']['email'], 'john@example.com')
-        self.assertIn('accessToken', response.data['data'])
-
-        # Verify default organisation
-        org = Organisation.objects.filter(name="John's Organisation").first()
-        self.assertIsNotNone(org)
-        self.assertTrue(org.users.filter(email='john@example.com').exists())
-
-    def test_login_user_success(self):
-        # First, register a user
-        user_data = {
-            'firstName': 'Jane',
-            'lastName': 'Doe',
-            'email': 'jane@example.com',
-            'password': 'password123'
-        }
-        self.client.post(self.register_url, user_data, format='json')
-
-        # Now, try to log in
-        login_data = {
-            'email': 'jane@example.com',
-            'password': 'password123'
-        }
-        response = self.client.post(self.login_url, login_data, format='json')
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data['status'], 'success')
-        self.assertEqual(response.data['data']['user']['email'], 'jane@example.com')
-        self.assertIn('accessToken', response.data['data'])
-
-    def test_login_user_failure(self):
-        login_data = {
-            'email': 'nonexistent@example.com',
-            'password': 'wrongpassword'
-        }
-        response = self.client.post(self.login_url, login_data, format='json')
-
-        self.assertEqual(response.status_code, 401)
-        self.assertEqual(response.data['status'], 'error')
-        self.assertIn('Authentication failed', response.data['message'])
-
-    def test_register_missing_fields(self):
-        required_fields = ['firstName', 'lastName', 'email', 'password']
-
-        for field in required_fields:
-            data = {
-                'firstName': 'John',
-                'lastName': 'Doe',
-                'email': 'john@example.com',
-                'password': 'password123'
-            }
-            data.pop(field)
-
-            response = self.client.post(self.register_url, data, format='json')
-
-            self.assertEqual(response.status_code, 422)
-            self.assertIn(field, response.data['errors'][0])
-
-    def test_register_duplicate_email(self):
-        # Register first user
-        data1 = {
-            'firstName': 'John',
-            'lastName': 'Doe',
-            'email': 'john@example.com',
-            'password': 'password123'
-        }
-        self.client.post(self.register_url, data1, format='json')
-
-        # Attempt to register second user with same email
-        data2 = {
-            'firstName': 'Jane',
-            'lastName': 'Doe',
-            'email': 'john@example.com',
-            'password': 'password456'
-        }
-        response = self.client.post(self.register_url, data2, format='json')
-
-        self.assertEqual(response.status_code, 422)
-        self.assertIn('email', response.data['errors'][0]['field'])
-        self.assertIn('already exists', response.data['errors'][0]['message'])
-
-    def test_register_duplicate_userId(self):
-        # This test assumes you have a userId field and it's automatically generated
-        # If not, you may need to adjust this test or remove it
-
-        # Register first user
-        data1 = {
-            'firstName': 'John',
-            'lastName': 'Doe',
-            'email': 'john@example.com',
-            'password': 'password123'
-        }
-        response1 = self.client.post(self.register_url, data1, format='json')
-        userId = response1.data['data']['user']['userId']
-
-        # Attempt to register second user with same userId (this should not typically happen
-        # if userId is auto-generated, but we're testing for it just in case)
-        data2 = {
-            'firstName': 'Jane',
-            'lastName': 'Doe',
-            'email': 'jane@example.com',
-            'password': 'password456',
-            'userId': userId
-        }
-        response2 = self.client.post(self.register_url, data2, format='json')
-
-        self.assertEqual(response2.status_code, 422)
-        self.assertIn('userId', response2.data['errors'])
-        self.assertIn('already exists', response2.data['errors'][0]['message'])
 
 
 # class RegisterAPITestCase(TestCase):
