@@ -1,5 +1,6 @@
 from rest_framework.views import exception_handler
 from rest_framework.response import Response
+from .exceptions import NoTokenError
 
 
 def custom_exception_handler(exc, context):
