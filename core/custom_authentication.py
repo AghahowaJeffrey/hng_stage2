@@ -48,25 +48,21 @@ class CustomUserJWTAuthentication(authentication.BaseAuthentication):
 
         if not auth_header:
             print("I got here+++++++++++++++++++++++++++++")
-            return None
+            return self.no_token_response()
 
         if len(auth_header) == 0:
-            return Response({
-            "status": "Bad request",
-            "message": "Authentication failed",
-            "statusCode": 401
-        }, status=status.HTTP_401_UNAUTHORIZED)
+            return self.no_token_response()
 
         if len(auth_header) == 1:
             # Invalid token header. No credentials provided. Do not attempt to
             # authenticate.
-            return None
+            return self.no_token_response()
 
         elif len(auth_header) > 2:
             # The structure should be [ "Token", "<auth_string>"]
             # Invalid token header. The Token string should not contain spaces. Do
             # not attempt to authenticate.
-            return None
+            return self.no_token_response()
 
         # This JWT library  can't handle the `byte` type, which is
         # commonly used by standard libraries in Python 3. To get around this,
@@ -80,12 +76,19 @@ class CustomUserJWTAuthentication(authentication.BaseAuthentication):
         if prefix.lower() != auth_header_prefix:
             # The auth header prefix is not what we expected. Do not attempt to
             # authenticate.
-            return None
+            return self.no_token_response()
 
         # By now, we are sure there is a *chance* that authentication will
         # succeed. We delegate the actual credentials authentication to the
         # method below.
         return self._authenticate_credentials(request, token)
+        
+    def no_token_response(self):
+        return Response({
+            "status": "Bad request",
+            "message": "Authentication failed",
+            "statusCode": 401
+        }, status=status.HTTP_401_UNAUTHORIZED)
 
     def _authenticate_credentials(self, request, token):
         """
@@ -95,27 +98,13 @@ class CustomUserJWTAuthentication(authentication.BaseAuthentication):
         try:
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms='HS256')  # TODO: PUSH THIS CHANGE
         except:
-            return Response({
-                "status": "error",
-                "message": "You do not have permission to view this user's details",
-                "statusCode": 403
-            }, status=status.HTTP_403_FORBIDDEN)
-
+            return self.no_token_response()
         try:
             user = User.objects.get(pk=payload['id'])
         except User.DoesNotExist:
-            return Response({
-                "status": "error",
-                "message": "You do not have permission to view this user's details",
-                "statusCode": 403
-            }, status=status.HTTP_403_FORBIDDEN)
-
+            return self.no_token_response()
         if not user.is_active:
             msg = 'This user has been deactivated.'
-            return Response({
-                "status": "error",
-                "message": "You do not have permission to view this user's details",
-                "statusCode": 403
-            }, status=status.HTTP_403_FORBIDDEN)
+            return self.no_token_response()
 
         return user, token
