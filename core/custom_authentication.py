@@ -7,7 +7,8 @@ import jwt
 
 from django.conf import settings
 
-from rest_framework import authentication, exceptions
+from rest_framework import authentication, exceptions, status
+from rest_framework.response import Response
 
 from user.models import User
 
@@ -87,17 +88,27 @@ class CustomUserJWTAuthentication(authentication.BaseAuthentication):
         try:
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms='HS256')  # TODO: PUSH THIS CHANGE
         except:
-            msg = 'Invalid authentication. Could not decode token, try with a fresh token'
-            raise exceptions.AuthenticationFailed(msg)
+            return Response({
+                "status": "error",
+                "message": "You do not have permission to view this user's details",
+                "statusCode": 403
+            }, status=status.HTTP_403_FORBIDDEN)
 
         try:
             user = User.objects.get(pk=payload['id'])
         except User.DoesNotExist:
-            msg = 'No user matching this token was found.'
-            raise exceptions.AuthenticationFailed(msg)
+            return Response({
+                "status": "error",
+                "message": "You do not have permission to view this user's details",
+                "statusCode": 403
+            }, status=status.HTTP_403_FORBIDDEN)
 
         if not user.is_active:
             msg = 'This user has been deactivated.'
-            raise exceptions.AuthenticationFailed(msg)
+            return Response({
+                "status": "error",
+                "message": "You do not have permission to view this user's details",
+                "statusCode": 403
+            }, status=status.HTTP_403_FORBIDDEN)
 
         return user, token

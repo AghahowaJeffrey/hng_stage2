@@ -17,8 +17,8 @@ class TokenGenerationTestCase(TestCase):
         self.user = User.objects.create_user(
             email='test@example.com',
             password='testpassword123',
-            first_name='Test',
-            last_name='User'
+            firstName='Test',
+            lastName='User'
         )
 
     def test_token_expiration(self):
@@ -35,14 +35,14 @@ class OrganisationAccessTestCase(TestCase):
         self.user1 = User.objects.create_user(
             email='user1@example.com',
             password='password123',
-            first_name='User',
-            last_name='One'
+            firstName='User',
+            lastNname='One'
         )
         self.user2 = User.objects.create_user(
             email='user2@example.com',
             password='password123',
-            first_name='User',
-            last_name='Two'
+            firstName='User',
+            lastName='Two'
         )
         self.org1 = Organisation.objects.create(name="Org 1")
         self.org2 = Organisation.objects.create(name="Org 2")
