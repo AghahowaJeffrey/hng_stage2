@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError as DRFValidationError
 
 from .serializers import *
+from core.custom_authentication import NoAuthenticationRequired
 
 
 
