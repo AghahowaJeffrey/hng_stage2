@@ -1,5 +1,7 @@
 from rest_framework import exceptions
 from rest_framework import status
+from rest_framework.permissions import BasePermission
+from rest_framework.exceptions import AuthenticationFailed
 
 
 class NoTokenError(exceptions.APIException):
@@ -11,3 +13,13 @@ class NoTokenError(exceptions.APIException):
     }
     default_code = 'no_token'
 
+
+class IsAuthenticatedCustom(BasePermission):
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            raise AuthenticationFailed({
+                "status": "Bad request",
+                "message": "Authentication failed",
+                "statusCode": 401
+            })
+        return True
