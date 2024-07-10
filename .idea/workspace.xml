@@ -4,12 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="54d4a688-360f-495f-8c39-626f58e85288" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/tests/auth_spec.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hng_stage2/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/hng_stage2/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/auth.spec.py" beforeDir="false" />
-    </list>
+    <list default="true" id="54d4a688-360f-495f-8c39-626f58e85288" name="Changes" comment="added allowed host" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -51,6 +46,19 @@
       <option name="presentableId" value="Default" />
       <updated>1720394148085</updated>
     </task>
+    <task id="LOCAL-00001" summary="added allowed host">
+      <option name="closed" value="true" />
+      <created>1720579147174</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1720579147175</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="added allowed host" />
+    <option name="LAST_COMMIT_MESSAGE" value="added allowed host" />
   </component>
 </project>

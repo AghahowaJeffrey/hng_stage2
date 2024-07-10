@@ -5,21 +5,16 @@
         "use": "@vercel/python",
         "config": {
           "maxLambdaSize": "15mb",
-          "runtime": "Python3.12"
+          "runtime": "Python3.12",
+          "buildCommand": "chmod +x build_file.sh && ./build_file.sh"
         }
-      },
-      {
-        "src": "build_file.sh",
-        "use": "@vercel/static-build"
-      }
-    ],
-
+      }],
     "routes": [
       {
         "src": "/(.*)",
         "dest": "hng_stage2/wsgi.py"
       }
     ],
-    "outputDirectory": "hng_stage2/wsgi.py"
+    "installCommand": "pip install pipenv && pipenv install --deploy --ignore-pipfile"
 }
 
