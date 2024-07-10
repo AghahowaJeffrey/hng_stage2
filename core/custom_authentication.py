@@ -51,21 +51,21 @@ class CustomUserJWTAuthentication(authentication.BaseAuthentication):
 
         if not auth_header:
             print("I got here+++++++++++++++++++++++++++++")
-            raise NoTokenError()
+            return None
 
         if len(auth_header) == 0:
-            raise NoTokenError()
+            return None
 
         if len(auth_header) == 1:
             # Invalid token header. No credentials provided. Do not attempt to
             # authenticate.
-            raise NoTokenError()
+            return None
 
         elif len(auth_header) > 2:
             # The structure should be [ "Token", "<auth_string>"]
             # Invalid token header. The Token string should not contain spaces. Do
             # not attempt to authenticate.
-            raise NoTokenError()
+            return None
 
         # This JWT library  can't handle the `byte` type, which is
         # commonly used by standard libraries in Python 3. To get around this,
@@ -79,7 +79,7 @@ class CustomUserJWTAuthentication(authentication.BaseAuthentication):
         if prefix.lower() != auth_header_prefix:
             # The auth header prefix is not what we expected. Do not attempt to
             # authenticate.
-            raise NoTokenError()
+            return None
 
         # By now, we are sure there is a *chance* that authentication will
         # succeed. We delegate the actual credentials authentication to the
@@ -105,7 +105,6 @@ class CustomUserJWTAuthentication(authentication.BaseAuthentication):
         except User.DoesNotExist:
             raise NoTokenError()
         if not user.is_active:
-            msg = 'This user has been deactivated.'
             raise NoTokenError()
 
         return user, token
