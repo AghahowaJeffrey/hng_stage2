@@ -34,7 +34,7 @@ class CustomUserJWTAuthentication(authentication.BaseAuthentication):
         if prefix.lower() != auth_header_prefix:
             raise NoTokenError()
 
-        return self._authenticate_credentials(request, token
+        return self._authenticate_credentials(request, token)
 
 
     def _authenticate_credentials(self, request, token):
