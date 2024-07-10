@@ -16,7 +16,7 @@ from core.custom_authentication import NoAuthenticationRequired
 
 @csrf_exempt
 @authentication_classes([NoAuthenticationRequired])
-@permission_classes([])
+@permission_classes([AllowAny])
 @api_view(['POST'])
 def register_user(request):
     """
@@ -59,7 +59,7 @@ def register_user(request):
 
 @api_view(['POST'])
 @authentication_classes([NoAuthenticationRequired])
-@permission_classes([])
+@permission_classes([AllowAny])
 def login_user(request):
     """
     Log a user in using the email and password as the authentication credentials
