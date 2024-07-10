@@ -11,7 +11,11 @@ from rest_framework.exceptions import ValidationError as DRFValidationError
 from .serializers import *
 
 
+
+
 @csrf_exempt
+@authentication_classes([NoAuthenticationRequired])
+@permission_classes([])
 @api_view(['POST'])
 def register_user(request):
     """
@@ -53,6 +57,8 @@ def register_user(request):
 
 
 @api_view(['POST'])
+@authentication_classes([NoAuthenticationRequired])
+@permission_classes([])
 def login_user(request):
     """
     Log a user in using the email and password as the authentication credentials
