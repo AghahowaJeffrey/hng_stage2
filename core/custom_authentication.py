@@ -9,19 +9,12 @@ from django.conf import settings
 
 from rest_framework import authentication, exceptions, status
 from rest_framework.response import Response
+from .exceptions import NoTokenError
 from jwt.exceptions import ExpiredSignatureError, DecodeError
 
 from user.models import User
 
 
-class NoTokenError(exceptions.APIException):
-    status_code = status.HTTP_401_UNAUTHORIZED
-    default_detail = {
-        "status": "Bad request",
-        "message": "Authentication failed",
-        "statusCode": 401
-    }
-    default_code = 'no_token'
 
 class CustomUserJWTAuthentication(authentication.BaseAuthentication):
     authentication_header_prefix = 'Bearer'
