@@ -6,14 +6,17 @@ from rest_framework.response import Response
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 
-from rest_framework.exceptions import ValidationError as DRFValidationError
+from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import AuthenticationFailed
 
 from .serializers import *
+from core.exceptions import IsAuthenticatedCustom
+
+
 
 
 @csrf_exempt
 @api_view(['POST'])
-@permission_classes([AllowAny])
 def register_user(request):
     """
     Register a user
@@ -37,7 +40,7 @@ def register_user(request):
                     }
                 }
             }, status=status.HTTP_201_CREATED)
-    except (ValidationError, DRFValidationError) as e:
+    except ValidationError as e:
         if hasattr(e, 'detail'):
             errors = [{"field": k, "message": str(v[0])} for k, v in e.detail.items()]
         else:
@@ -54,33 +57,29 @@ def register_user(request):
 
 
 @api_view(['POST'])
-@permission_classes([AllowAny])
 def login_user(request):
     """
     Log a user in using the email and password as the authentication credentials
     """
     try:
         serializer = LoginSerializer(data=request.data, context={'request': request})
-        if serializer.is_valid(raise_exception=True):
-            return Response(serializer.save(), status=status.HTTP_200_OK)
-    except (ValidationError, DRFValidationError) as e:
-        if hasattr(e, 'detail'):
-            errors = [{"field": k, "message": str(v[0])} for k, v in e.detail.items()]
-        else:
-            errors = [{"field": k, "message": str(v[0])} for k, v in e.message_dict.items()]
-        return Response({
-            "errors": errors
-        }, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-    except Exception as e:
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.save(), status=status.HTTP_200_OK)
+    except AuthenticationFailed as e:
         return Response({
             "status": "Bad request",
             "message": "Authentication failed",
             "statusCode": 401
         }, status=status.HTTP_401_UNAUTHORIZED)
+    except ValidationError as e:
+        errors = [{"field": k, "message": str(v[0])} for k, v in e.detail.items()]
+        return Response({
+            "errors": errors
+        }, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticatedCustom])
 def get_user_detail(request, id):
     """
     Get a user's own record or user record in organisations they belong to or created
@@ -117,7 +116,7 @@ def get_user_detail(request, id):
 
 
 @api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticatedCustom])
 def get_user_organisations(request):
     """
     Get all organisations the authenticated user belongs to or created.
@@ -165,24 +164,22 @@ def get_user_organisations(request):
                     "message": "Organisation created successfully",
                     "data": serializer.data
                 }, status=status.HTTP_201_CREATED)
-        except (ValidationError, DRFValidationError) as e:
-            if hasattr(e, 'detail'):
-                errors = [{"field": k, "message": str(v[0])} for k, v in e.detail.items()]
-            else:
-                errors = [{"field": k, "message": str(v[0])} for k, v in e.message_dict.items()]
+        except Exception as e:
             return Response({
-                "errors": errors
-            }, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+                "status": "Bad Request",
+                "message": "Client error",
+                "statusCode": 400
+            }, status=status.HTTP_400_BAD_REQUEST)
     else:
         return Response({
-            "status": "Bad request",
+            "status": "Bad Request",
             "message": "Client error",
             "statusCode": 400
         }, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticatedCustom])
 def get_single_organisation(request, orgId):
     """
     Get a single organisation record for the authenticated user.

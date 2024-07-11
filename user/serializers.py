@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate
 from django.db import transaction
 
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, AuthenticationFailed
 
 from .models import User, Organisation
 
@@ -59,14 +59,19 @@ class LoginSerializer(serializers.Serializer):
         email = attrs.get('email')
         password = attrs.get('password')
 
+    def validate(self, attrs):
+        email = attrs.get('email')
+        password = attrs.get('password')
+    
         if email and password:
             user = authenticate(request=self.context.get('request'),
                                 email=email, password=password)
             if not user:
-                raise ValidationError('Unable to log in with provided credentials.')
+                raise AuthenticationFailed('Unable to log in with provided credentials.')
         else:
-            raise ValidationError('Must include "email" and "password".')
-
+            msg = 'Must include "email" and "password".'
+            raise serializers.ValidationError(msg)
+    
         attrs['user'] = user
         return attrs
 
