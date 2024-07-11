@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate
 from django.db import transaction
 
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, AuthenticationFailed
 
 from .models import User, Organisation
 
