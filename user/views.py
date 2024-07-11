@@ -71,7 +71,7 @@ def login_user(request):
             errors = [{"field": k, "message": str(v[0])} for k, v in e.message_dict.items()]
         return Response({
             "errors": errors
-        }, status=status.HTTP_401_UNAUTHORIZED)
+        }, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
     except Exception as e:
         return Response({
             "status": "Bad request",
