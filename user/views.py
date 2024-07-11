@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 
-from rest_framework.exceptions import ValidationError as DRFValidationError
+from rest_framework.exceptions import ValidationError
 from rest_framework.exceptions import AuthenticationFailed
 
 from .serializers import *
@@ -63,19 +63,16 @@ def login_user(request):
     """
     try:
         serializer = LoginSerializer(data=request.data, context={'request': request})
-        if serializer.is_valid(raise_exception=True):
-            return Response(serializer.save(), status=status.HTTP_200_OK)
-    except AuthenticationFailed:
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.save(), status=status.HTTP_200_OK)
+    except AuthenticationFailed as e:
         return Response({
-            "status": "Bad request",
-            "message": "Authentication failed",
+            "status": "error",
+            "message": str(e),
             "statusCode": 401
         }, status=status.HTTP_401_UNAUTHORIZED)
-    except DRFValidationError as e:
-        if hasattr(e, 'detail'):
-            errors = [{"field": k, "message": str(v[0])} for k, v in e.detail.items()]
-        else:
-            errors = [{"field": k, "message": str(v[0])} for k, v in e.message_dict.items()]
+    except ValidationError as e:
+        errors = [{"field": k, "message": str(v[0])} for k, v in e.detail.items()]
         return Response({
             "errors": errors
         }, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
