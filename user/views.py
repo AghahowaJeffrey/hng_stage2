@@ -68,7 +68,7 @@ def login_user(request):
     except AuthenticationFailed as e:
         return Response({
             "status": "Bad request",
-            "message": str(e),
+            "message": "Authentication failed",
             "statusCode": 401
         }, status=status.HTTP_401_UNAUTHORIZED)
     except ValidationError as e:
