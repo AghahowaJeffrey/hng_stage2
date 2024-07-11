@@ -17,9 +17,5 @@ class NoTokenError(exceptions.APIException):
 class IsAuthenticatedCustom(BasePermission):
     def has_permission(self, request, view):
         if not request.user or not request.user.is_authenticated:
-            raise AuthenticationFailed({
-                "status": "Bad request",
-                "message": "Authentication failed",
-                "statusCode": 401
-            })
+            raise NoTokenError()
         return True
