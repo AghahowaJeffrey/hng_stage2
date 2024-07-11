@@ -67,7 +67,7 @@ def login_user(request):
         return Response(serializer.save(), status=status.HTTP_200_OK)
     except AuthenticationFailed as e:
         return Response({
-            "status": "error",
+            "status": "Bad request",
             "message": str(e),
             "statusCode": 401
         }, status=status.HTTP_401_UNAUTHORIZED)
