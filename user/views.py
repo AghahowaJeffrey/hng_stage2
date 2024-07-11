@@ -7,6 +7,7 @@ from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 
 from rest_framework.exceptions import ValidationError as DRFValidationError
+from rest_framework.exceptions import AuthenticationFailed
 
 from .serializers import *
 from core.exceptions import IsAuthenticatedCustom
@@ -64,7 +65,7 @@ def login_user(request):
         serializer = LoginSerializer(data=request.data, context={'request': request})
         if serializer.is_valid(raise_exception=True):
             return Response(serializer.save(), status=status.HTTP_200_OK)
-    except ValidationError as e:
+    except AuthenticationFailed:
         return Response({
             "status": "Bad request",
             "message": "Authentication failed",
