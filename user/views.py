@@ -40,7 +40,7 @@ def register_user(request):
                     }
                 }
             }, status=status.HTTP_201_CREATED)
-    except (ValidationError, DRFValidationError) as e:
+    except ValidationError as e:
         if hasattr(e, 'detail'):
             errors = [{"field": k, "message": str(v[0])} for k, v in e.detail.items()]
         else:
