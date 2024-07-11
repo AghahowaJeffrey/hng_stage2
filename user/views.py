@@ -64,6 +64,12 @@ def login_user(request):
         serializer = LoginSerializer(data=request.data, context={'request': request})
         if serializer.is_valid(raise_exception=True):
             return Response(serializer.save(), status=status.HTTP_200_OK)
+    except ValidationError as e:
+        return Response({
+            "status": "Bad request",
+            "message": "Authentication failed",
+            "statusCode": 401
+        }, status=status.HTTP_401_UNAUTHORIZED)
     except DRFValidationError as e:
         if hasattr(e, 'detail'):
             errors = [{"field": k, "message": str(v[0])} for k, v in e.detail.items()]
@@ -72,12 +78,6 @@ def login_user(request):
         return Response({
             "errors": errors
         }, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-    except ValidationError as e:
-        return Response({
-            "status": "Bad request",
-            "message": "Authentication failed",
-            "statusCode": 401
-        }, status=status.HTTP_401_UNAUTHORIZED)
 
 
 @api_view(['GET'])
