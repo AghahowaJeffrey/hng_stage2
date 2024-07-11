@@ -39,14 +39,6 @@ def register_user(request):
                     }
                 }
             }, status=status.HTTP_201_CREATED)
-    except (ValidationError, DRFValidationError) as e:
-        if hasattr(e, 'detail'):
-            errors = [{"field": k, "message": str(v[0])} for k, v in e.detail.items()]
-        else:
-            errors = [{"field": k, "message": str(v[0])} for k, v in e.message_dict.items()]
-        return Response({
-            "errors": errors
-        }, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
     except Exception as e:
         return Response({
             "status": "Bad request",
